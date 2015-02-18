@@ -1,0 +1,84 @@
+@(dpTotals: Array[Array[com.github.ddth.tsc.DataPoint]],
+    dpErrors: Array[Array[com.github.ddth.tsc.DataPoint]],
+    dpBrandnames: Array[Array[com.github.ddth.tsc.DataPoint]],
+    dpZalos: Array[Array[com.github.ddth.tsc.DataPoint]]
+)(implicit lang: Lang)
+@import play.mvc._
+@import com.github.ddth.plommon.utils._
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>@PlayAppUtils.appConfigString("app.fullname")</title>   
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="@PlayAppUtils.appConfigString("app.name")" />    
+    
+    <link rel="stylesheet" href="@controllers.routes.Assets.at("bootstrap/css/bootstrap.min.css")">
+</head>
+
+<body>
+    <div class="container">
+        <h1>@PlayAppUtils.appConfigString("app.fullname")</h1>
+    </div>
+    
+    <hr>
+    
+    <div class="container">
+	    <table class="table table-striped table-bordered">
+		    <thead>
+		        <tr>
+		           <th>&nbsp;</th>
+		           <th colspan="3" style="text-align: center">Total</th>
+		           <th colspan="3" style="text-align: center">Brandname</th>
+	               <th colspan="3" style="text-align: center">Zalo</th>
+		           <th colspan="3" style="text-align: center">Error</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+		        <tr>
+		            <td>Local</td>
+		            
+		            <td style="text-align: right">@dpTotals(0)(0).value()</td>
+		            <td style="text-align: right">@dpTotals(0)(1).value()</td>
+		            <td style="text-align: right">@dpTotals(0)(2).value()</td>
+		            
+		            <td style="text-align: right">@dpBrandnames(0)(0).value()</td>
+	                <td style="text-align: right">@dpBrandnames(0)(1).value()</td>
+	                <td style="text-align: right">@dpBrandnames(0)(2).value()</td>
+	                
+	                <td style="text-align: right">@dpZalos(0)(0).value()</td>
+	                <td style="text-align: right">@dpZalos(0)(1).value()</td>
+	                <td style="text-align: right">@dpZalos(0)(2).value()</td>
+		            
+		            <td style="text-align: right">@dpErrors(0)(0).value()</td>
+	                <td style="text-align: right">@dpErrors(0)(1).value()</td>
+	                <td style="text-align: right">@dpErrors(0)(2).value()</td>
+		        </tr>
+	            <tr>
+	                <td>Global</td>
+	                
+	                <td style="text-align: right">@dpTotals(1)(0).value()</td>
+	                <td style="text-align: right">@dpTotals(1)(1).value()</td>
+	                <td style="text-align: right">@dpTotals(1)(2).value()</td>
+	                
+	                <td style="text-align: right">@dpBrandnames(1)(0).value()</td>
+	                <td style="text-align: right">@dpBrandnames(1)(1).value()</td>
+	                <td style="text-align: right">@dpBrandnames(1)(2).value()</td>
+	                
+	                <td style="text-align: right">@dpZalos(1)(0).value()</td>
+	                <td style="text-align: right">@dpZalos(1)(1).value()</td>
+	                <td style="text-align: right">@dpZalos(1)(2).value()</td>
+	                
+	                <td style="text-align: right">@dpErrors(1)(0).value()</td>
+	                <td style="text-align: right">@dpErrors(1)(1).value()</td>
+	                <td style="text-align: right">@dpErrors(1)(2).value()</td>
+	            </tr>
+		    </tbody>
+	    </table>
+	</div>
+    
+    <script type="text/javascript" src="@controllers.routes.Assets.at("bootstrap/js/bootstrap.min.js")"></script>
+    <script type="text/javascript" src="@controllers.routes.Assets.at("bootstrap/js/jquery.min.js")"></script>
+</body>
+</html>

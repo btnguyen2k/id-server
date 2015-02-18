@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context 
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util 
+                           http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<bean id="ID_API" class="api.IdApi" lazy-init="false" init-method="init"
+		destroy-method="destroy" scope="singleton">
+		<property name="defaultEngine" ref="ENGINE_SNOWFLAKE" />
+
+		<!-- Set to true to enable engine -->
+		<property name="engineJdbcEnabled" value="false" />
+		<property name="engineRedisEnabled" value="false" />
+		<property name="engineSnowflakeEnabled" value="true" />
+		<property name="engineZookeeperEnabled" value="false" />
+	</bean>
+
+	<bean id="ENGINE_SNOWFLAKE" class="engine.SnowflakeIdEngine"
+		lazy-init="true" init-method="init" destroy-method="destroy">
+		<!-- Snowflake Engine: each instance of ID-Server should have a unique 
+			node-id. Use value of -1 to let the engine automatically calculate its node-id. -->
+		<property name="nodeId" value="-1" />
+	</bean>
+
+	<!-- beans for development env -->
+	<beans>
+	</beans>
+
+	<!-- beans for production env -->
+	<beans profile="prod,production">
+	</beans>
+</beans>

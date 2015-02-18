@@ -1,0 +1,21 @@
+<configuration>
+
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${app.home}/logs/ubase-id-server.log
+		</file>
+		<append>true</append>
+		<encoder>
+			<pattern><![CDATA[%date - [%level] - %class{}(%file:%line\) / %thread%n%message%n%xException%n]]></pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern><![CDATA[${app.home}/logs/ubase-id-server.log.%d{yyyy-MM-dd}]]></fileNamePattern>
+		</rollingPolicy>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="FILE" />
+	</root>
+
+</configuration>
