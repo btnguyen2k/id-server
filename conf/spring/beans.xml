@@ -15,9 +15,38 @@
 
 		<!-- Set to true to enable engine -->
 		<property name="engineJdbcEnabled" value="false" />
-		<property name="engineRedisEnabled" value="false" />
+		<property name="engineRedisEnabled" value="true" />
 		<property name="engineSnowflakeEnabled" value="true" />
 		<property name="engineZookeeperEnabled" value="false" />
+	</bean>
+
+	<bean id="ENGINE_REDIS" class="engine.RedisIdEngine" lazy-init="true"
+		init-method="init" destroy-method="destroy">
+		<!-- Each ID namespace is a Redis key, which can be prefixed by this property -->
+		<property name="prefix" value="id-server-" />
+		<property name="redisIdGenerator">
+			<bean class="com.github.ddth.id.RedisIdGenerator" init-method="init"
+				destroy-method="destroy">
+				<property name="redisHost" value="localhost" />
+				<property name="redisPort" value="6379" />
+				<!-- uncomment the following 2 properties to set redis username & password -->
+				<!-- <property name="redisUser" value="username" /> <property name="redisPassword" 
+					value="s3cr3t" /> -->
+				<property name="redisPoolConfig">
+					<bean class="com.github.ddth.redis.PoolConfig">
+						<!-- Maximum 4 connections to Redis server -->
+						<property name="maxActive" value="4" />
+						<!-- Maintain minimum 1 connections to Redis server while idle -->
+						<property name="minIdle" value="1" />
+						<property name="testOnBorrow" value="true" />
+						<property name="testWhileIdle" value="true" />
+						<!-- Maximum wait time (in millisec) to borrow a Redis connection from 
+							pool -->
+						<property name="maxWaitTime" value="3000" />
+					</bean>
+				</property>
+			</bean>
+		</property>
 	</bean>
 
 	<bean id="ENGINE_SNOWFLAKE" class="engine.SnowflakeIdEngine"
