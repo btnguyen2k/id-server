@@ -6,6 +6,9 @@ GET         /                               controllers.Application.index()
 GET         /nextId                         controllers.Application.nextId(namespace="default", engine="default")
 GET         /nextId/:namespace              controllers.Application.nextId(namespace: String, engine="default")
 GET         /nextId/:namespace/:engine      controllers.Application.nextId(namespace: String, engine: String)
+GET         /currentId                      controllers.Application.currentId(namespace="default", engine="default")
+GET         /currentId/:namespace           controllers.Application.currentId(namespace: String, engine="default")
+GET         /currentId/:namespace/:engine   controllers.Application.currentId(namespace: String, engine: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file               controllers.Assets.at(path="/public", file)

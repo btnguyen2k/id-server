@@ -15,4 +15,13 @@ public interface IIdEngine {
      * @throws Exception
      */
     public long nextId(final String namespace) throws Exception;
+
+    /**
+     * Gets current ID for a namespace.
+     * 
+     * @param namespace
+     * @return
+     * @throws Exception
+     */
+    public long currentId(final String namespace) throws Exception;
 }

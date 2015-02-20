@@ -23,6 +23,7 @@ import com.google.common.cache.RemovalNotification;
  * <li>Ascending: Next generated ID is larger than previous ones.</li>
  * <li>Time-based: Each generated ID is associated with a timestamp.</li>
  * <li>Non-serial: {@code next-id} is NOT equal to {@code previous-id + 1}!</li>
+ * <li>No-current: {@link IIdEngine#currentId(String)} is NOT supported!</li>
  * </ul>
  * <p/>
  * 
@@ -91,12 +92,18 @@ public class SnowflakeIdEngine implements IIdEngine {
 
     /**
      * {@inheritDoc}
-     * 
-     * @throws ExecutionException
      */
     @Override
     public long nextId(String namespace) throws ExecutionException {
         return _cache.get(namespace).generateId64();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long currentId(String namespace) throws Exception {
+        return -2;
     }
 
 }

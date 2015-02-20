@@ -100,27 +100,28 @@ public class IdApi implements ApplicationContextAware {
         return nextId(null, namespace);
     }
 
-    private final static Pattern PATTERN_NAMESPACE = Pattern.compile("^[\\w]+$");
-
     /**
-     * Generates next ID for a namespace, using specified engine.
+     * Gets current ID for a namespace, using default engine.
      * 
-     * @param engine
      * @param namespace
-     * @return next ID as a long, or {@code -1} if engine is invalid/not
-     *         supported.
+     * @return
      * @throws Exception
      */
-    public long nextId(final String engine, String namespace) throws Exception {
-        if (StringUtils.isBlank(namespace)) {
-            namespace = "default";
-        } else {
-            namespace = namespace.trim().toLowerCase();
-        }
-        if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
-            return -1;
-        }
+    public long currentId(final String namespace) throws Exception {
+        return currentId(null, namespace);
+    }
 
+    private final static Pattern PATTERN_NAMESPACE = Pattern.compile("^[\\w]+$");
+
+    private static String normalizeNamespace(final String namespace) {
+        if (StringUtils.isBlank(namespace)) {
+            return "default";
+        } else {
+            return namespace.trim().toLowerCase();
+        }
+    }
+
+    private IIdEngine getIdEngineInstance(final String engine) {
         IIdEngine idEngine = null;
         if (StringUtils.equalsIgnoreCase(engine, Constants.ENGINE_JDBC)) {
             idEngine = engines.get(Constants.ENGINE_JDBC);
@@ -134,12 +135,56 @@ public class IdApi implements ApplicationContextAware {
         } else {
             idEngine = getDefaultEngine();
         }
+        return idEngine;
+    }
+
+    /**
+     * Generates next ID for a namespace, using specified engine.
+     * 
+     * @param engine
+     * @param namespace
+     * @return next ID as a long, or {@code -1} if engine is invalid/not
+     *         supported.
+     * @throws Exception
+     */
+    public long nextId(final String engine, String namespace) throws Exception {
+        namespace = normalizeNamespace(namespace);
+        if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
+            return -1;
+        }
+
+        IIdEngine idEngine = getIdEngineInstance(engine);
 
         if (idEngine == null) {
             return 0;
         }
 
         return idEngine.nextId(namespace);
+    }
+
+    /**
+     * Gets current ID for a namespace, using specified engine.
+     * 
+     * @param engine
+     * @param namespace
+     * @return current ID as a long, or {@code -1} if engine is invalid/not
+     *         supported, or {@code -2} if engine does not support getting the
+     *         current ID
+     * @throws Exception
+     */
+    public long currentId(final String engine, String namespace) throws Exception {
+        namespace = normalizeNamespace(namespace);
+        if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
+            return -1;
+        }
+
+        IIdEngine idEngine = getIdEngineInstance(engine);
+
+        if (idEngine == null) {
+            return 0;
+        }
+
+        return idEngine.currentId(namespace);
     }
 
     private ApplicationContext appContext;

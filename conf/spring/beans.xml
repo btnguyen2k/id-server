@@ -17,7 +17,7 @@
 		<property name="engineJdbcEnabled" value="false" />
 		<property name="engineRedisEnabled" value="true" />
 		<property name="engineSnowflakeEnabled" value="true" />
-		<property name="engineZookeeperEnabled" value="false" />
+		<property name="engineZookeeperEnabled" value="true" />
 	</bean>
 
 	<bean id="ENGINE_REDIS" class="engine.RedisIdEngine" lazy-init="true"
@@ -54,6 +54,16 @@
 		<!-- Snowflake Engine: each instance of ID-Server should have a unique 
 			node-id. Use value of -1 to let the engine automatically calculate its node-id. -->
 		<property name="nodeId" value="-1" />
+	</bean>
+
+	<bean id="ENGINE_ZOOKEEPER" class="engine.ZookeeperIdEngine"
+		lazy-init="true" init-method="init" destroy-method="destroy">
+		<property name="zookeeperIdGenerator">
+			<bean class="com.github.ddth.id.ZookeeperIdGenerator"
+				init-method="init" destroy-method="destroy">
+				<property name="zookeeperConnString" value="localhost:2181/id-server" />
+			</bean>
+		</property>
 	</bean>
 
 	<!-- beans for development env -->

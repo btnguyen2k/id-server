@@ -1,7 +1,5 @@
 package engine;
 
-import java.util.concurrent.ExecutionException;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.ddth.id.RedisIdGenerator;
@@ -66,12 +64,18 @@ public class RedisIdEngine implements IIdEngine {
 
     /**
      * {@inheritDoc}
-     * 
-     * @throws ExecutionException
      */
     @Override
-    public long nextId(String namespace) throws ExecutionException {
+    public long nextId(String namespace) {
         return redisIdGenerator.nextId(prefix + namespace);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long currentId(String namespace) {
+        return redisIdGenerator.currentId(prefix + namespace);
     }
 
 }

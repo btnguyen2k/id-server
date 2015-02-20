@@ -6,11 +6,12 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.ddth.commons.utils.SerializationUtils;
-
+import play.Logger;
 import play.mvc.Result;
 import util.Constants;
 import api.IdApi;
+
+import com.github.ddth.commons.utils.SerializationUtils;
 
 public class Application extends BaseController {
 
@@ -26,19 +27,45 @@ public class Application extends BaseController {
         return ok(SerializationUtils.toJsonString(result));
     }
 
+    /*
+     * Handles: GET:/nextId/:namespace/:engine
+     */
     public static Result nextId(final String namespace, final String engine) {
         IdApi idApi = Registry.getIdApi();
         try {
             long id = idApi.nextId(engine, namespace);
-            if (id < 0) {
-                return doResponse(400, id, "Invalid namespace [" + namespace + "]!");
-            }
             if (id == 0) {
                 return doResponse(404, id, "Engine not supported [" + engine + "]!");
+            }
+            if (id < 0) {
+                return doResponse(400, id, "Invalid namespace [" + namespace + "]!");
             }
             return doResponse(200, id, "Successful");
         } catch (Exception e) {
             final String logMsg = "Exception [" + e.getClass() + "]: " + e.getMessage();
+            Logger.error(logMsg, e);
+            return doResponse(500, -1, logMsg);
+        }
+    }
+
+    /*
+     * Handles: GET:/currentId/:namespace/:engine
+     */
+    public static Result currentId(final String namespace, final String engine) {
+        IdApi idApi = Registry.getIdApi();
+        try {
+            long id = idApi.currentId(engine, namespace);
+            if (id == -2) {
+                return doResponse(400, id, "Engine [" + engine
+                        + "] does not support this operation");
+            }
+            if (id < 0) {
+                return doResponse(400, id, "Invalid namespace [" + namespace + "]!");
+            }
+            return doResponse(200, id, "Successful");
+        } catch (Exception e) {
+            final String logMsg = "Exception [" + e.getClass() + "]: " + e.getMessage();
+            Logger.error(logMsg, e);
             return doResponse(500, -1, logMsg);
         }
     }
