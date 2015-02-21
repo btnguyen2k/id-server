@@ -1,5 +1,6 @@
 package globals;
 
+import org.apache.thrift.server.TServer;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -9,13 +10,41 @@ import play.Logger;
 import api.IdApi;
 
 public class Registry {
+
     public static void init() {
         initApplicationContext();
         idApi = getBean(IdApi.class);
     }
 
     public static void destroy() {
+        stopThriftServer();
         destroyApplicationContext();
+    }
+
+    /*----------------------------------------------------------------------*/
+    private static TServer thriftServer = null;
+
+    public static void startThriftServer(final TServer thriftServer) {
+        Registry.thriftServer = thriftServer;
+        Thread t = new Thread("Thrift Server") {
+            public void run() {
+                System.out.println("Starting Thrift server " + thriftServer);
+                thriftServer.serve();
+            }
+        };
+        t.start();
+    }
+
+    public static void stopThriftServer() {
+        if (thriftServer != null) {
+            try {
+                thriftServer.stop();
+            } catch (Exception e) {
+                Logger.warn(e.getMessage(), e);
+            } finally {
+                thriftServer = null;
+            }
+        }
     }
 
     /*----------------------------------------------------------------------*/

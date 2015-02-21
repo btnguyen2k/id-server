@@ -17,6 +17,7 @@ object ApplicationBuild extends Build {
 
     val appDependencies = Seq(
         "org.slf4j"                  %  "log4j-over-slf4j"       % "1.7.10",
+        "org.apache.thrift"          %  "libthrift"              % "0.9.2",
 
         "org.springframework"        %  "spring-beans"           % _springVersion,
         "org.springframework"        %  "spring-expression"      % _springVersion,
