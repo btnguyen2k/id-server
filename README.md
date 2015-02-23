@@ -75,3 +75,7 @@ Supported engines:
 - `redis`: utilize [Redis](http://redis.io) to generate IDs.
 - `zookeeper`: utilize [ZooKeeper](http://zookeeper.apache.org) to generate IDs.
 - `snowflake`: generate IDs using [Snowflake algorithm](https://blog.twitter.com/2010/announcing-snowflake).
+
+### Thrift APIs ###
+
+See file [idserver.thrift](thrift/idserver.thrift).
