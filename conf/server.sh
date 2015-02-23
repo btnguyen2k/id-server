@@ -96,7 +96,7 @@ usageAndExit() {
     echo "    start: start the server"
     echo "       -m : JVM memory limit in mb (default $DEFAULT_APP_MEM)"
     echo "       -p : Http port for REST APIs (default $DEFAULT_APP_PORT)"
-    echo "       -t : Thrift port for Thrift APIs (default $DEFAULT_APP_PORT)"
+    echo "       -t : Thrift port for Thrift APIs (default $DEFAULT_THRIFT_PORT)"
     echo "       -c : Custom configuration file, file is loaded under directory ./conf (default $DEFAULT_APP_CONF)"
     echo "       -j : Extra JVM options (example: -Djava.rmi.server.hostname=localhost)"
     echo
