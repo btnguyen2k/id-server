@@ -55,3 +55,23 @@ Stop server:
 ### ID Engines Configurations ###
 
 See file `conf/spring/beans.xml`.
+
+
+## APIs ##
+
+### REST APIs ###
+
+Generates next ID for a namespace, using default engine:
+> `GET /nextId/<namespace>`
+> `GET /nextId/users`
+> `GET /nextId/topics`
+
+Generates next ID for a namespace, using specified engine:
+> `GET /nextId/<namespace>/<engine>`
+
+Supported engines:
+- `default`: default engine, configured in `conf/spring/beans.xml`
+- `jdbc`: utilize a database system to generate IDs.
+- `redis`: utilize [Redis](http://redis.io) to generate IDs.
+- `zookeeper`: utilize [ZooKeeper](http://zookeeper.apache.org) to generate IDs.
+- `snowflake`: generate IDs using [Snowflake algorithm](https://blog.twitter.com/2010/announcing-snowflake).
