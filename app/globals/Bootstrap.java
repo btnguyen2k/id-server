@@ -10,7 +10,7 @@ import play.GlobalSettings;
 import thrift.TIdServiceImpl;
 import util.ThriftServerUtils;
 
-import com.github.ubase.idserver.thrift.TIdService;
+import com.github.btnguyen2k.idserver.thrift.TIdService;
 
 public class Bootstrap extends GlobalSettings {
 

@@ -7,7 +7,7 @@ import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 
-import com.github.ubase.idserver.thrift.TIdService;
+import com.github.btnguyen2k.idserver.thrift.TIdService;
 
 public class QndThriftClient {
 

@@ -2,7 +2,7 @@
 
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${app.home}/logs/ubase-id-server.log
+		<file>${app.home}/logs/id-server.log
 		</file>
 		<append>true</append>
 		<encoder>
@@ -10,7 +10,7 @@
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern><![CDATA[${app.home}/logs/ubase-id-server.log.%d{yyyy-MM-dd}]]></fileNamePattern>
+			<fileNamePattern><![CDATA[${app.home}/logs/id-server.log.%d{yyyy-MM-dd}]]></fileNamePattern>
 		</rollingPolicy>
 	</appender>
 

@@ -17,7 +17,7 @@ _basedir=$(pwd -L)
 popd > /dev/null
 
 APP_HOME=$_basedir/..
-APP_NAME=ubase-id-server
+APP_NAME=id-server
 APP_PID=$APP_HOME/$APP_NAME.pid
 
 DEFAULT_APP_PORT=8080

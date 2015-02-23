@@ -7,8 +7,8 @@ import org.apache.thrift.TException;
 import play.Logger;
 import api.IdApi;
 
-import com.github.ubase.idserver.thrift.TIdResponse;
-import com.github.ubase.idserver.thrift.TIdService;
+import com.github.btnguyen2k.idserver.thrift.TIdResponse;
+import com.github.btnguyen2k.idserver.thrift.TIdService;
 
 public class TIdServiceImpl implements TIdService.Iface {
 

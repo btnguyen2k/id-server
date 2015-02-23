@@ -1,6 +1,6 @@
 // Thrift definition file for id-server
 
-namespace java com.github.ubase.idserver.thrift
+namespace java com.github.btnguyen2k.idserver.thrift
 
 struct TIdResponse {
     1: i32 status,
