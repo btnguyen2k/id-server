@@ -52,14 +52,6 @@ Stop server:
 
 ## Configurations ##
 
-### Startup Script Parameters ###
-
->`/usr/local/id-server/conf/server-production.sh start [-m <JVM memory limit in mb>] [-p <http port>] [-t <thrift port>] [-j "<extra jvm options>"]`
->    -m : JVM memory limit in mb (default 64)
->    -p : Http port for REST APIs (default 8080)
->    -t : Thrift port for Thrift APIs (default 9090)
->    -j : Extra JVM options (example: -Djava.rmi.server.hostname=localhost)
-
 ### ID Engines Configurations ###
 
 See file `conf/spring/beans.xml`.
