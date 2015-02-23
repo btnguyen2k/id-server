@@ -25,7 +25,7 @@ object ApplicationBuild extends Build {
         "org.apache.commons"         % "commons-dbcp2"           % "2.0.1",
         "mysql"                      %  "mysql-connector-java"   % "5.1.34",
         
-        "com.github.ddth"            %  "ddth-id"                % "0.2.0" excludeAll(
+        "com.github.ddth"            %  "ddth-id"                % "0.3.0" excludeAll(
             ExclusionRule("org.slf4j", "slf4j-log4j12")
         ),
         "com.github.ddth"            %  "ddth-redis"             % "0.4.0",

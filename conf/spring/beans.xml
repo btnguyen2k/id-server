@@ -13,18 +13,49 @@
 		destroy-method="destroy" scope="singleton">
 		<property name="defaultEngine" ref="ENGINE_SNOWFLAKE" />
 
-		<!-- Set to true to enable engine -->
-		<property name="engineJdbcEnabled" value="false" />
+		<!-- Set to true to enable engine, false to disable -->
+		<property name="engineJdbcEnabled" value="true" />
 		<property name="engineRedisEnabled" value="true" />
 		<property name="engineSnowflakeEnabled" value="true" />
 		<property name="engineZookeeperEnabled" value="true" />
+	</bean>
+
+	<bean id="ENGINE_JDBC" class="engine.JdbcIdEngine" lazy-init="true"
+		init-method="init" destroy-method="destroy">
+		<property name="idGenerator">
+			<bean class="com.github.ddth.id.JdbcIdGenerator" init-method="init"
+				destroy-method="destroy">
+				<property name="tableName" value="id_server" />
+				<property name="dataSource">
+					<bean class="org.apache.commons.dbcp2.BasicDataSource"
+						destroy-method="close">
+						<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+						<property name="url"
+							value="jdbc:mysql://localhost:3306/temp?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8" />
+						<property name="username" value="test" />
+						<property name="password" value="test" />
+						<property name="defaultAutoCommit" value="false" />
+						<property name="initialSize" value="2" />
+						<property name="maxConnLifetimeMillis" value="180000" />
+						<property name="maxWaitMillis" value="10000" />
+						<property name="minIdle" value="2" />
+						<property name="maxTotal" value="4" />
+						<property name="poolPreparedStatements" value="false" />
+						<property name="testOnBorrow" value="true" />
+						<property name="testWhileIdle" value="true" />
+						<property name="validationQuery" value="SELECT 1" />
+						<property name="validationQueryTimeout" value="1" />
+					</bean>
+				</property>
+			</bean>
+		</property>
 	</bean>
 
 	<bean id="ENGINE_REDIS" class="engine.RedisIdEngine" lazy-init="true"
 		init-method="init" destroy-method="destroy">
 		<!-- Each ID namespace is a Redis key, which can be prefixed by this property -->
 		<property name="prefix" value="id-server-" />
-		<property name="redisIdGenerator">
+		<property name="idGenerator">
 			<bean class="com.github.ddth.id.RedisIdGenerator" init-method="init"
 				destroy-method="destroy">
 				<property name="redisHost" value="localhost" />
@@ -58,7 +89,7 @@
 
 	<bean id="ENGINE_ZOOKEEPER" class="engine.ZookeeperIdEngine"
 		lazy-init="true" init-method="init" destroy-method="destroy">
-		<property name="zookeeperIdGenerator">
+		<property name="idGenerator">
 			<bean class="com.github.ddth.id.ZookeeperIdGenerator"
 				init-method="init" destroy-method="destroy">
 				<property name="zookeeperConnString" value="localhost:2181/id-server" />
