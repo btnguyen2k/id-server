@@ -7,11 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import play.Logger;
+import play.api.templates.Html;
 import play.mvc.Result;
 import util.Constants;
 import api.IdApi;
 
 import com.github.ddth.commons.utils.SerializationUtils;
+import com.github.ddth.tsc.DataPoint;
+import com.github.ddth.tsc.ICounter;
+import com.github.ddth.tsc.ICounterFactory;
 
 public class Application extends BaseController {
 
@@ -70,10 +74,86 @@ public class Application extends BaseController {
         }
     }
 
+    private static DataPoint[] buildCounterData(ICounter counter, long timestamp) {
+        long last1Min = timestamp - 60 * 1000L;
+        long last5Mins = timestamp - 5 * 60 * 1000L;
+        long last15Mins = timestamp - 15 * 60 * 1000L;
+        DataPoint[] result = new DataPoint[] {
+                new DataPoint(DataPoint.Type.SUM, last1Min, 0, ICounter.STEPS_1_MIN * 1000),
+                new DataPoint(DataPoint.Type.SUM, last5Mins, 0, ICounter.STEPS_5_MINS * 1000),
+                new DataPoint(DataPoint.Type.SUM, last15Mins, 0, ICounter.STEPS_15_MINS * 1000) };
+        if (counter == null) {
+            return result;
+        }
+
+        DataPoint[] tempArr = counter.getSeries(last1Min, timestamp);
+        for (DataPoint dp : tempArr) {
+            result[0].add(dp);
+        }
+        tempArr = counter.getSeries(last5Mins, timestamp);
+        for (DataPoint dp : tempArr) {
+            result[1].add(dp);
+        }
+        tempArr = counter.getSeries(last15Mins, timestamp);
+        for (DataPoint dp : tempArr) {
+            result[2].add(dp);
+        }
+        return result;
+    }
+
     /*
      * Handle: GET:/index
      */
     public static Result index() throws Exception {
-        return ok("Test");
+        Map<String, DataPoint[]> statsLocal = new HashMap<String, DataPoint[]>();
+        Map<String, DataPoint[]> statsGlobal = new HashMap<String, DataPoint[]>();
+        ICounterFactory localCounterFactory = Registry.getLocalCounterFactory();
+        ICounterFactory globalCounterFactory = Registry.getGlobalCounterFactory();
+
+        long timestamp = System.currentTimeMillis();
+        statsLocal.put(
+                Registry.COUNTER_TOTAL,
+                buildCounterData(
+                        localCounterFactory != null ? localCounterFactory
+                                .getCounter(Registry.COUNTER_TOTAL) : null, timestamp));
+        statsLocal.put(
+                Registry.COUNTER_SUCCESSFUL,
+                buildCounterData(
+                        localCounterFactory != null ? localCounterFactory
+                                .getCounter(Registry.COUNTER_SUCCESSFUL) : null, timestamp));
+        statsLocal.put(
+                Registry.COUNTER_FAILED_ENGINE,
+                buildCounterData(
+                        localCounterFactory != null ? localCounterFactory
+                                .getCounter(Registry.COUNTER_FAILED_ENGINE) : null, timestamp));
+        statsLocal.put(
+                Registry.COUNTER_FAILED_NAMESPACE,
+                buildCounterData(
+                        localCounterFactory != null ? localCounterFactory
+                                .getCounter(Registry.COUNTER_FAILED_NAMESPACE) : null, timestamp));
+
+        statsGlobal.put(
+                Registry.COUNTER_TOTAL,
+                buildCounterData(
+                        globalCounterFactory != null ? globalCounterFactory
+                                .getCounter(Registry.COUNTER_TOTAL) : null, timestamp));
+        statsGlobal.put(
+                Registry.COUNTER_SUCCESSFUL,
+                buildCounterData(
+                        globalCounterFactory != null ? globalCounterFactory
+                                .getCounter(Registry.COUNTER_SUCCESSFUL) : null, timestamp));
+        statsGlobal.put(
+                Registry.COUNTER_FAILED_ENGINE,
+                buildCounterData(
+                        globalCounterFactory != null ? globalCounterFactory
+                                .getCounter(Registry.COUNTER_FAILED_ENGINE) : null, timestamp));
+        statsGlobal.put(
+                Registry.COUNTER_FAILED_NAMESPACE,
+                buildCounterData(
+                        globalCounterFactory != null ? globalCounterFactory
+                                .getCounter(Registry.COUNTER_FAILED_NAMESPACE) : null, timestamp));
+
+        Html html = render("index", statsLocal, statsGlobal);
+        return ok(html);
     }
 }

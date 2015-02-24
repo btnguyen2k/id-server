@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import util.Constants;
 import engine.IIdEngine;
+import globals.Registry;
 
 /**
  * Engine to generate IDs.
@@ -150,15 +151,18 @@ public class IdApi implements ApplicationContextAware {
     public long nextId(final String engine, String namespace) throws Exception {
         namespace = normalizeNamespace(namespace);
         if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
+            Registry.updateCounters(-1);
             return -1;
         }
 
         IIdEngine idEngine = getIdEngineInstance(engine);
 
         if (idEngine == null) {
+            Registry.updateCounters(0);
             return 0;
         }
 
+        Registry.updateCounters(1);
         return idEngine.nextId(namespace);
     }
 

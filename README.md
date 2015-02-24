@@ -43,6 +43,7 @@ Start server with default options:
 
 Start server with 1024M memory limit, REST API in port 18080, Thrift API on port 19090
 > `/usr/local/id-server/conf/server-production.sh start -m 1024 -p 18080 -t 19090`
+Set thrift port to 0 (`-t 0`) to disable Thrift APIs.
 
 Upon successful startup, id-server listens for REST requests on port `8080` and Thrift requests on port `9090` (both port numbers are configurable).
 

@@ -7,6 +7,7 @@ import org.apache.thrift.server.TServer;
 
 import play.Application;
 import play.GlobalSettings;
+import play.Logger;
 import thrift.TIdServiceImpl;
 import util.ThriftServerUtils;
 
@@ -28,18 +29,28 @@ public class Bootstrap extends GlobalSettings {
     }
 
     private void startThriftServer() {
-        TServer thriftServer = null;
+        int thriftPort = 0;
         try {
-            int thriftPort = 9090;
-            TProcessorFactory processorFactory = new TProcessorFactory(
-                    new TIdService.Processor<TIdService.Iface>(TIdServiceImpl.instance));
-            // TProtocolFactory protocolFactory = new TBinaryProtocol.Factory();
-            TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-            thriftServer = ThriftServerUtils.createThreadedSelectorServer(processorFactory,
-                    protocolFactory, thriftPort, 3000, 0, 0, 2, 8);
+            thriftPort = Integer.parseInt(System.getProperty("thrift.port"));
         } catch (Exception e) {
-            thriftServer = null;
+            thriftPort = 0;
         }
-        Registry.startThriftServer(thriftServer);
+
+        if (thriftPort > 0) {
+            TServer thriftServer = null;
+            try {
+                TProcessorFactory processorFactory = new TProcessorFactory(
+                        new TIdService.Processor<TIdService.Iface>(TIdServiceImpl.instance));
+                // TProtocolFactory protocolFactory = new
+                // TBinaryProtocol.Factory();
+                TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
+                thriftServer = ThriftServerUtils.createThreadedSelectorServer(processorFactory,
+                        protocolFactory, thriftPort, 3000, 0, 0, 2, 8);
+            } catch (Exception e) {
+                thriftServer = null;
+            }
+            Logger.info("Starting Thrift API server on port " + thriftPort + "...");
+            Registry.startThriftServer(thriftServer);
+        }
     }
 }

@@ -14,6 +14,7 @@ object ApplicationBuild extends Build {
     val appVersion      = conf.getString("app.version")
     
     val _springVersion = "4.1.4.RELEASE"
+    var _tscVersion = "0.6.0"
 
     val appDependencies = Seq(
         "org.slf4j"                  %  "log4j-over-slf4j"       % "1.7.10",
@@ -29,6 +30,8 @@ object ApplicationBuild extends Build {
             ExclusionRule("org.slf4j", "slf4j-log4j12")
         ),
         "com.github.ddth"            %  "ddth-redis"             % "0.4.0",
+        "com.github.ddth"            %  "ddth-tsc"               % _tscVersion,
+        "com.github.ddth"            %  "ddth-tsc-redis"         % _tscVersion,
 
         "com.github.ddth"            %% "play-module-plommon"    % "0.5.1.5",
         

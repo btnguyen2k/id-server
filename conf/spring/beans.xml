@@ -9,15 +9,29 @@
                            http://www.springframework.org/schema/util 
                            http://www.springframework.org/schema/util/spring-util.xsd">
 
+	<!-- Local stats -->
+	<bean id="TSC_LOCAL" class="com.github.ddth.tsc.mem.InmemCounterFactory"
+		init-method="init" destroy-method="destroy" lazy-init="false">
+	</bean>
+
+	<!-- Global stats: un-comment bean TSC_GLOBAL to enable global stats (e.g. 
+		in case there are more than 1 running id-servers for load balancing) -->
+	<!-- <bean id="TSC_GLOBAL" class="com.github.ddth.tsc.redis.RedisCounterFactory" 
+		init-method="init" destroy-method="destroy" lazy-init="false"> <property 
+		name="host" value="localhost" /> <property name="port" value="6379" /> <property 
+		name="redisPoolConfig"> <bean class="com.github.ddth.redis.PoolConfig"> <property 
+		name="maxActive" value="2" /> <property name="minIdle" value="1" /> </bean> 
+		</property> </bean> -->
+
 	<bean id="ID_API" class="api.IdApi" lazy-init="false" init-method="init"
 		destroy-method="destroy" scope="singleton">
 		<property name="defaultEngine" ref="ENGINE_SNOWFLAKE" />
 
 		<!-- Set to true to enable engine, false to disable -->
-		<property name="engineJdbcEnabled" value="true" />
-		<property name="engineRedisEnabled" value="true" />
+		<property name="engineJdbcEnabled" value="false" />
+		<property name="engineRedisEnabled" value="false" />
 		<property name="engineSnowflakeEnabled" value="true" />
-		<property name="engineZookeeperEnabled" value="true" />
+		<property name="engineZookeeperEnabled" value="false" />
 	</bean>
 
 	<bean id="ENGINE_JDBC" class="engine.JdbcIdEngine" lazy-init="true"
