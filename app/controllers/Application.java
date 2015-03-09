@@ -107,53 +107,45 @@ public class Application extends BaseController {
     public static Result index() throws Exception {
         Map<String, DataPoint[]> statsLocal = new HashMap<String, DataPoint[]>();
         Map<String, DataPoint[]> statsGlobal = new HashMap<String, DataPoint[]>();
+        Map<String, Long> countersLocal = new HashMap<String, Long>();
+        Map<String, Long> countersGlobal = new HashMap<String, Long>();
         ICounterFactory localCounterFactory = Registry.getLocalCounterFactory();
         ICounterFactory globalCounterFactory = Registry.getGlobalCounterFactory();
 
         long timestamp = System.currentTimeMillis();
-        statsLocal.put(
-                Registry.COUNTER_TOTAL,
-                buildCounterData(
-                        localCounterFactory != null ? localCounterFactory
-                                .getCounter(Registry.COUNTER_TOTAL) : null, timestamp));
-        statsLocal.put(
-                Registry.COUNTER_SUCCESSFUL,
-                buildCounterData(
-                        localCounterFactory != null ? localCounterFactory
-                                .getCounter(Registry.COUNTER_SUCCESSFUL) : null, timestamp));
-        statsLocal.put(
-                Registry.COUNTER_FAILED_ENGINE,
-                buildCounterData(
-                        localCounterFactory != null ? localCounterFactory
-                                .getCounter(Registry.COUNTER_FAILED_ENGINE) : null, timestamp));
-        statsLocal.put(
-                Registry.COUNTER_FAILED_NAMESPACE,
-                buildCounterData(
-                        localCounterFactory != null ? localCounterFactory
-                                .getCounter(Registry.COUNTER_FAILED_NAMESPACE) : null, timestamp));
+        String[] tscNames = new String[] { Registry.TSC_TOTAL, Registry.TSC_SUCCESSFUL,
+                Registry.TSC_FAILED_ENGINE, Registry.TSC_FAILED_NAMESPACE };
+        for (String name : tscNames) {
+            statsLocal.put(
+                    name,
+                    buildCounterData(
+                            localCounterFactory != null ? localCounterFactory.getCounter(name)
+                                    : null, timestamp));
+            statsGlobal.put(
+                    name,
+                    buildCounterData(
+                            globalCounterFactory != null ? globalCounterFactory.getCounter(name)
+                                    : null, timestamp));
+        }
 
-        statsGlobal.put(
-                Registry.COUNTER_TOTAL,
-                buildCounterData(
-                        globalCounterFactory != null ? globalCounterFactory
-                                .getCounter(Registry.COUNTER_TOTAL) : null, timestamp));
-        statsGlobal.put(
-                Registry.COUNTER_SUCCESSFUL,
-                buildCounterData(
-                        globalCounterFactory != null ? globalCounterFactory
-                                .getCounter(Registry.COUNTER_SUCCESSFUL) : null, timestamp));
-        statsGlobal.put(
-                Registry.COUNTER_FAILED_ENGINE,
-                buildCounterData(
-                        globalCounterFactory != null ? globalCounterFactory
-                                .getCounter(Registry.COUNTER_FAILED_ENGINE) : null, timestamp));
-        statsGlobal.put(
-                Registry.COUNTER_FAILED_NAMESPACE,
-                buildCounterData(
-                        globalCounterFactory != null ? globalCounterFactory
-                                .getCounter(Registry.COUNTER_FAILED_NAMESPACE) : null, timestamp));
+        String[] counterNames = new String[] { Registry.COUNTER_TOTAL, Registry.COUNTER_SUCCESSFUL,
+                Registry.COUNTER_FAILED_ENGINE, Registry.COUNTER_FAILED_NAMESPACE };
+        for (String name : counterNames) {
+            ICounter counter = localCounterFactory != null ? localCounterFactory.getCounter(name)
+                    : null;
+            DataPoint dp = counter != null ? counter.get(0) : null;
+            long value = dp != null ? dp.value() : 0;
+            countersLocal.put(name, value);
 
-        Html html = render("index", statsLocal, statsGlobal);
+            counter = globalCounterFactory != null ? globalCounterFactory.getCounter(name) : null;
+            dp = counter != null ? counter.get(0) : null;
+            value = dp != null ? dp.value() : 0;
+            countersGlobal.put(name, value);
+        }
+        
+        long[] concurrency = Registry.getConcurrency();
+
+        Html html = render("index", concurrency, countersLocal, statsLocal, countersGlobal, statsGlobal);
         return ok(html);
     }
 }

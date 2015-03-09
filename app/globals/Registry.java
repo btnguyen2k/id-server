@@ -9,6 +9,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import play.Logger;
 import api.IdApi;
 
+import com.github.ddth.tsc.DataPoint;
 import com.github.ddth.tsc.ICounter;
 import com.github.ddth.tsc.ICounterFactory;
 
@@ -30,12 +31,81 @@ public class Registry {
 
     /*----------------------------------------------------------------------*/
     private static ICounterFactory localCounterFactory, globalCounterFactory;
-    public final static String COUNTER_TOTAL = "IDSERVER_TOTAL";
-    public final static String COUNTER_SUCCESSFUL = "IDSERVER_SUCCESSFUL";
-    public final static String COUNTER_FAILED_NAMESPACE = "IDSERVER_FAILED_NAMESPACE";
-    public final static String COUNTER_FAILED_ENGINE = "IDSERVER_FAILED_ENGINE";
+    public final static String TSC_TOTAL = "IDSERVER_TSC_TOTAL";
+    public final static String TSC_SUCCESSFUL = "IDSERVER_TSC_SUCCESSFUL";
+    public final static String TSC_FAILED_NAMESPACE = "IDSERVER_TSC_FAILED_NAMESPACE";
+    public final static String TSC_FAILED_ENGINE = "IDSERVER_TSC_FAILED_ENGINE";
 
-    private static void _updateCounters(String name) {
+    public final static String COUNTER_TOTAL = "IDSERVER_COUNTER_TOTAL";
+    public final static String COUNTER_SUCCESSFUL = "IDSERVER_COUNTER_SUCCESSFUL";
+    public final static String COUNTER_FAILED_NAMESPACE = "IDSERVER_COUNTER_FAILED_NAMESPACE";
+    public final static String COUNTER_FAILED_ENGINE = "IDSERVER_COUNTER_FAILED_ENGINE";
+
+    public final static String COUNTER_CONCURENCY = "IDSERVER_CONCURENCY";
+
+    /**
+     * @since 0.2.0
+     */
+    public static void incConcurrency() {
+        ICounter counter;
+
+        counter = localCounterFactory != null ? localCounterFactory.getCounter(COUNTER_CONCURENCY)
+                : null;
+        if (counter != null) {
+            counter.add(1000, 1);
+        }
+
+        counter = globalCounterFactory != null ? globalCounterFactory
+                .getCounter(COUNTER_CONCURENCY) : null;
+        if (counter != null) {
+            counter.add(1000, 1);
+        }
+    }
+
+    /**
+     * @since 0.2.0
+     */
+    public static void decConcurrency() {
+        ICounter counter;
+
+        counter = localCounterFactory != null ? localCounterFactory.getCounter(COUNTER_CONCURENCY)
+                : null;
+        if (counter != null) {
+            counter.add(1000, -1);
+        }
+
+        counter = globalCounterFactory != null ? globalCounterFactory
+                .getCounter(COUNTER_CONCURENCY) : null;
+        if (counter != null) {
+            counter.add(1000, -1);
+        }
+    }
+
+    /**
+     * @since 0.2.0
+     */
+    public static long[] getConcurrency() {
+        ICounter counter;
+        DataPoint dp;
+        long[] result = new long[2];
+
+        counter = localCounterFactory != null ? localCounterFactory.getCounter(COUNTER_CONCURENCY)
+                : null;
+        dp = counter != null ? counter.get(1000) : null;
+        result[0] = dp != null ? dp.value() : 0;
+
+        counter = globalCounterFactory != null ? globalCounterFactory
+                .getCounter(COUNTER_CONCURENCY) : null;
+        dp = counter != null ? counter.get(1000) : null;
+        result[1] = dp != null ? dp.value() : 0;
+
+        return result;
+    }
+
+    /**
+     * @since 0.2.0
+     */
+    private static void _updateTscCounters(final String name) {
         ICounter counterLocal = localCounterFactory != null ? localCounterFactory.getCounter(name)
                 : null;
         if (counterLocal != null) {
@@ -49,16 +119,37 @@ public class Registry {
         }
     }
 
+    /**
+     * @since 0.2.0
+     */
+    private static void _updateCounters(final String name) {
+        ICounter counterLocal = localCounterFactory != null ? localCounterFactory.getCounter(name)
+                : null;
+        if (counterLocal != null) {
+            counterLocal.add(0, 1);
+        }
+
+        ICounter counterGlobal = globalCounterFactory != null ? globalCounterFactory
+                .getCounter(name) : null;
+        if (counterGlobal != null) {
+            counterGlobal.add(0, 1);
+        }
+    }
+
     public static void updateCounters(final int status) {
+        _updateTscCounters(TSC_TOTAL);
         _updateCounters(COUNTER_TOTAL);
         switch (status) {
         case -1:
+            _updateTscCounters(TSC_FAILED_NAMESPACE);
             _updateCounters(COUNTER_FAILED_NAMESPACE);
             break;
         case 0:
+            _updateTscCounters(TSC_FAILED_ENGINE);
             _updateCounters(COUNTER_FAILED_ENGINE);
             break;
         default:
+            _updateTscCounters(TSC_SUCCESSFUL);
             _updateCounters(COUNTER_SUCCESSFUL);
         }
     }

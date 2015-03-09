@@ -10,6 +10,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import util.Constants;
+
+import com.github.ddth.id.utils.IdException;
+
 import engine.IIdEngine;
 import globals.Registry;
 
@@ -20,6 +23,8 @@ import globals.Registry;
  * @since 0.1.0
  */
 public class IdApi implements ApplicationContextAware {
+
+    private final static int MAX_RETRIES = 3;
 
     private IIdEngine defaultEngine;
     private Map<String, IIdEngine> engines = new HashMap<String, IIdEngine>();
@@ -112,6 +117,18 @@ public class IdApi implements ApplicationContextAware {
         return currentId(null, namespace);
     }
 
+    /**
+     * Sets value for a namespace, using default engine.
+     * 
+     * @param namespace
+     * @param value
+     * @return
+     * @throws Exception
+     */
+    public boolean setValue(final String namespace, final long value) throws Exception {
+        return setValue(null, namespace, value);
+    }
+
     private final static Pattern PATTERN_NAMESPACE = Pattern.compile("^[\\w]+$");
 
     private static String normalizeNamespace(final String namespace) {
@@ -144,26 +161,47 @@ public class IdApi implements ApplicationContextAware {
      * 
      * @param engine
      * @param namespace
-     * @return next ID as a long, or {@code -1} if engine is invalid/not
-     *         supported.
+     * @return next ID as a long, or {@code -1} if namespace is invalid,
+     *         {@code 0} if engine is not supported.
      * @throws Exception
      */
     public long nextId(final String engine, String namespace) throws Exception {
-        namespace = normalizeNamespace(namespace);
-        if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
-            Registry.updateCounters(-1);
-            return -1;
+        Registry.incConcurrency();
+        try {
+            namespace = normalizeNamespace(namespace);
+            if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
+                Registry.updateCounters(-1);
+                return -1;
+            }
+
+            IIdEngine idEngine = getIdEngineInstance(engine);
+
+            if (idEngine == null) {
+                Registry.updateCounters(0);
+                return 0;
+            }
+
+            Registry.updateCounters(1);
+            return _nextIdWithRetry(idEngine, namespace, 0, MAX_RETRIES);
+        } finally {
+            Registry.decConcurrency();
         }
+    }
 
-        IIdEngine idEngine = getIdEngineInstance(engine);
-
-        if (idEngine == null) {
-            Registry.updateCounters(0);
-            return 0;
+    private long _nextIdWithRetry(final IIdEngine idEngine, final String namespace,
+            final int numRetries, final int maxRetries) throws Exception {
+        try {
+            long result = idEngine.nextId(namespace);
+            if (result < 0 && numRetries < maxRetries) {
+                return _nextIdWithRetry(idEngine, namespace, numRetries + 1, maxRetries);
+            }
+            return result;
+        } catch (IdException e) {
+            if (numRetries < maxRetries) {
+                return _nextIdWithRetry(idEngine, namespace, numRetries + 1, maxRetries);
+            }
+            throw e;
         }
-
-        Registry.updateCounters(1);
-        return idEngine.nextId(namespace);
     }
 
     /**
@@ -171,24 +209,90 @@ public class IdApi implements ApplicationContextAware {
      * 
      * @param engine
      * @param namespace
-     * @return current ID as a long, or {@code -1} if engine is invalid/not
-     *         supported, or {@code -2} if engine does not support getting the
-     *         current ID
+     * @return current ID as a long, or {@code -1} if namespace is invalid, or
+     *         {@code -2} if engine does not support getting the current ID
      * @throws Exception
      */
     public long currentId(final String engine, String namespace) throws Exception {
-        namespace = normalizeNamespace(namespace);
-        if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
-            return -1;
+        Registry.incConcurrency();
+        try {
+            namespace = normalizeNamespace(namespace);
+            if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
+                return -1;
+            }
+
+            IIdEngine idEngine = getIdEngineInstance(engine);
+
+            if (idEngine == null) {
+                return 0;
+            }
+
+            return _currentIdWithRetry(idEngine, namespace, 0, MAX_RETRIES);
+        } finally {
+            Registry.decConcurrency();
         }
+    }
 
-        IIdEngine idEngine = getIdEngineInstance(engine);
-
-        if (idEngine == null) {
-            return 0;
+    private long _currentIdWithRetry(final IIdEngine idEngine, final String namespace,
+            final int numRetries, final int maxRetries) throws Exception {
+        try {
+            long result = idEngine.currentId(namespace);
+            if (result < 0 && numRetries < maxRetries) {
+                return _nextIdWithRetry(idEngine, namespace, numRetries + 1, maxRetries);
+            }
+            return result;
+        } catch (IdException e) {
+            if (numRetries < maxRetries) {
+                return _currentIdWithRetry(idEngine, namespace, numRetries + 1, maxRetries);
+            }
+            throw e;
         }
+    }
 
-        return idEngine.currentId(namespace);
+    /**
+     * Sets ID value for a namespace, using specified engine.
+     * 
+     * @param engine
+     * @param namespace
+     * @param value
+     * @return
+     * @throws Exception
+     */
+    public boolean setValue(final String engine, String namespace, final long value)
+            throws Exception {
+        Registry.incConcurrency();
+        try {
+            namespace = normalizeNamespace(namespace);
+            if (!PATTERN_NAMESPACE.matcher(namespace).matches()) {
+                return false;
+            }
+
+            IIdEngine idEngine = getIdEngineInstance(engine);
+
+            if (idEngine == null) {
+                return false;
+            }
+
+            return _setValueWithRetry(idEngine, namespace, value, 0, MAX_RETRIES);
+        } finally {
+            Registry.decConcurrency();
+        }
+    }
+
+    private boolean _setValueWithRetry(final IIdEngine idEngine, final String namespace,
+            final long value, final int numRetries, final int maxRetries) throws Exception {
+        try {
+            boolean result = idEngine.setValue(namespace, value);
+            if (!result && numRetries < maxRetries) {
+                return _setValueWithRetry(idEngine, namespace, value, numRetries + 1, maxRetries);
+            }
+            return result;
+        } catch (IdException e) {
+            if (numRetries < maxRetries) {
+                return _setValueWithRetry(idEngine, namespace, value, numRetries + 1, maxRetries);
+            }
+            throw e;
+        }
     }
 
     private ApplicationContext appContext;

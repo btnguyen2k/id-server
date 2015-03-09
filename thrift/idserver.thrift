@@ -13,6 +13,11 @@ service TIdService {
      * "Ping" the server. This method is to test if server is reachable.
      */
     oneway void ping(),
+    
+    /**
+     * "Ping" the server. This method is to test if server is reachable.
+     */
+    bool ping2(),
 
     /**
      * Generates next ID for a namespace, using specified engine.
@@ -31,4 +36,14 @@ service TIdService {
      * @return
      */
     TIdResponse currentId(1: string _namespace, 2: string _engine)
+    
+    /**
+     * Set ID value for a namespace, using specified engine.
+     * 
+     * @param namespace
+     * @param value
+     * @param engine
+     * @return
+     */
+    TIdResponse setValue(1: string _namespace, 2: i64 _value, 3: string _engine)
 }

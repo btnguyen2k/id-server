@@ -24,4 +24,14 @@ public interface IIdEngine {
      * @throws Exception
      */
     public long currentId(final String namespace) throws Exception;
+
+    /**
+     * Sets value for a namespace.
+     * 
+     * @param namespace
+     * @param value
+     * @return
+     * @throws Exception
+     */
+    public boolean setValue(final String namespace, final long value) throws Exception;
 }

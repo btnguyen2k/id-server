@@ -63,4 +63,12 @@ public class BaseSerialIdEngine implements IIdEngine {
     public long currentId(final String namespace) {
         return idGenerator.currentId(normalizeNamespace(namespace));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean setValue(String namespace, long value) throws Exception {
+        return idGenerator.setValue(namespace, value);
+    }
 }

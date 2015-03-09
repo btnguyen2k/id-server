@@ -22,6 +22,14 @@ public class TIdServiceImpl implements TIdService.Iface {
         // EMPTY
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean ping2() throws TException {
+        return true;
+    }
+
     private static TIdResponse doResponse(int status, long id, String message) {
         TIdResponse response = new TIdResponse(status, id, message);
         return response;
@@ -65,6 +73,26 @@ public class TIdServiceImpl implements TIdService.Iface {
                 return doResponse(400, id, "Invalid namespace [" + _namespace + "]!");
             }
             return doResponse(200, id, "Successful");
+        } catch (Exception e) {
+            final String logMsg = "Exception [" + e.getClass() + "]: " + e.getMessage();
+            Logger.error(logMsg, e);
+            return doResponse(500, -1, logMsg);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TIdResponse setValue(String _namespace, long _value, String _engine) throws TException {
+        IdApi idApi = Registry.getIdApi();
+        try {
+            boolean result = idApi.setValue(_engine, _namespace, _value);
+            if (result) {
+                return doResponse(200, _value, "Successful");
+            } else {
+                return doResponse(400, -1, "Failed");
+            }
         } catch (Exception e) {
             final String logMsg = "Exception [" + e.getClass() + "]: " + e.getMessage();
             Logger.error(logMsg, e);

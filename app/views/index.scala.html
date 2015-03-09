@@ -1,5 +1,6 @@
-@(statsLocal: java.util.Map[String, Array[com.github.ddth.tsc.DataPoint]],
-    statsGlobal: java.util.Map[String, Array[com.github.ddth.tsc.DataPoint]]
+@(concurrency: Array[Long],
+    countersLocal: java.util.Map[String, Long], statsLocal: java.util.Map[String, Array[com.github.ddth.tsc.DataPoint]],
+    countersGlobal: java.util.Map[String, Long], statsGlobal: java.util.Map[String, Array[com.github.ddth.tsc.DataPoint]]
 )(implicit lang: Lang)
 @import play.mvc._
 @import com.github.ddth.plommon.utils._
@@ -19,6 +20,8 @@
     <div class="container">
 	    <h1>@PlayAppUtils.appConfigString("app.fullname") is running!</h1>
 	    <hr />
+	    <h3>Concurrency: @concurrency(0) / @concurrency(1)</h3>
+	    
 	    <table class="table table-bordered table-condensed">
 	        <thead>
 	            <tr>
@@ -48,43 +51,55 @@
 	        </thead>
 	        <tbody>
 	            <tr>
-	                <td>LOCAL</td>
+	                <td rowspan="2" style="vertical-align: middle">LOCAL</td>
 	                
-	                <td style="text-align: right" class="info">@statsLocal.get(Registry.COUNTER_TOTAL)(0).value()</td>
-	                <td style="text-align: right" class="info">@statsLocal.get(Registry.COUNTER_TOTAL)(1).value()</td>
-	                <td style="text-align: right" class="info">@statsLocal.get(Registry.COUNTER_TOTAL)(2).value()</td>
+	                <td style="text-align: right" class="info">@statsLocal.get(Registry.TSC_TOTAL)(0).value()</td>
+	                <td style="text-align: right" class="info">@statsLocal.get(Registry.TSC_TOTAL)(1).value()</td>
+	                <td style="text-align: right" class="info">@statsLocal.get(Registry.TSC_TOTAL)(2).value()</td>
 	                
-	                <td style="text-align: right" class="success">@statsLocal.get(Registry.COUNTER_SUCCESSFUL)(0).value()</td>
-	                <td style="text-align: right" class="success">@statsLocal.get(Registry.COUNTER_SUCCESSFUL)(1).value()</td>
-	                <td style="text-align: right" class="success">@statsLocal.get(Registry.COUNTER_SUCCESSFUL)(2).value()</td>
+	                <td style="text-align: right" class="success">@statsLocal.get(Registry.TSC_SUCCESSFUL)(0).value()</td>
+	                <td style="text-align: right" class="success">@statsLocal.get(Registry.TSC_SUCCESSFUL)(1).value()</td>
+	                <td style="text-align: right" class="success">@statsLocal.get(Registry.TSC_SUCCESSFUL)(2).value()</td>
 	                
-	                <td style="text-align: right" class="warning">@statsLocal.get(Registry.COUNTER_FAILED_ENGINE)(0).value()</td>
-                    <td style="text-align: right" class="warning">@statsLocal.get(Registry.COUNTER_FAILED_ENGINE)(1).value()</td>
-                    <td style="text-align: right" class="warning">@statsLocal.get(Registry.COUNTER_FAILED_ENGINE)(2).value()</td>
+	                <td style="text-align: right" class="warning">@statsLocal.get(Registry.TSC_FAILED_ENGINE)(0).value()</td>
+                    <td style="text-align: right" class="warning">@statsLocal.get(Registry.TSC_FAILED_ENGINE)(1).value()</td>
+                    <td style="text-align: right" class="warning">@statsLocal.get(Registry.TSC_FAILED_ENGINE)(2).value()</td>
                     
-                    <td style="text-align: right" class="danger">@statsLocal.get(Registry.COUNTER_FAILED_NAMESPACE)(0).value()</td>
-                    <td style="text-align: right" class="danger">@statsLocal.get(Registry.COUNTER_FAILED_NAMESPACE)(1).value()</td>
-                    <td style="text-align: right" class="danger">@statsLocal.get(Registry.COUNTER_FAILED_NAMESPACE)(2).value()</td>
+                    <td style="text-align: right" class="danger">@statsLocal.get(Registry.TSC_FAILED_NAMESPACE)(0).value()</td>
+                    <td style="text-align: right" class="danger">@statsLocal.get(Registry.TSC_FAILED_NAMESPACE)(1).value()</td>
+                    <td style="text-align: right" class="danger">@statsLocal.get(Registry.TSC_FAILED_NAMESPACE)(2).value()</td>
 	            </tr>
 	            <tr>
-	                <td>GLOBAL</td>
-	                
-	                <td style="text-align: right" class="info">@statsGlobal.get(Registry.COUNTER_TOTAL)(0).value()</td>
-	                <td style="text-align: right" class="info">@statsGlobal.get(Registry.COUNTER_TOTAL)(1).value()</td>
-	                <td style="text-align: right" class="info">@statsGlobal.get(Registry.COUNTER_TOTAL)(2).value()</td>
-	                
-	                <td style="text-align: right" class="success">@statsGlobal.get(Registry.COUNTER_SUCCESSFUL)(0).value()</td>
-	                <td style="text-align: right" class="success">@statsGlobal.get(Registry.COUNTER_SUCCESSFUL)(1).value()</td>
-	                <td style="text-align: right" class="success">@statsGlobal.get(Registry.COUNTER_SUCCESSFUL)(2).value()</td>
-	                
-	                <td style="text-align: right" class="warning">@statsGlobal.get(Registry.COUNTER_FAILED_ENGINE)(0).value()</td>
-                    <td style="text-align: right" class="warning">@statsGlobal.get(Registry.COUNTER_FAILED_ENGINE)(1).value()</td>
-                    <td style="text-align: right" class="warning">@statsGlobal.get(Registry.COUNTER_FAILED_ENGINE)(2).value()</td>
-                    
-                    <td style="text-align: right" class="danger">@statsGlobal.get(Registry.COUNTER_FAILED_NAMESPACE)(0).value()</td>
-                    <td style="text-align: right" class="danger">@statsGlobal.get(Registry.COUNTER_FAILED_NAMESPACE)(1).value()</td>
-                    <td style="text-align: right" class="danger">@statsGlobal.get(Registry.COUNTER_FAILED_NAMESPACE)(2).value()</td>
+	               <td colspan="3" style="text-align: center; font-weight: bold" class="info">@countersLocal.get(Registry.COUNTER_TOTAL)</td>
+	               <td colspan="3" style="text-align: center; font-weight: bold" class="success">@countersLocal.get(Registry.COUNTER_SUCCESSFUL)</td>
+	               <td colspan="3" style="text-align: center; font-weight: bold" class="warning">@countersLocal.get(Registry.COUNTER_FAILED_ENGINE)</td>
+	               <td colspan="3" style="text-align: center; font-weight: bold" class="danger">@countersLocal.get(Registry.COUNTER_FAILED_NAMESPACE)</td>
 	            </tr>
+	            <tr>
+	                <td rowspan="2" style="vertical-align: middle">GLOBAL</td>
+	                
+	                <td style="text-align: right" class="info">@statsGlobal.get(Registry.TSC_TOTAL)(0).value()</td>
+	                <td style="text-align: right" class="info">@statsGlobal.get(Registry.TSC_TOTAL)(1).value()</td>
+	                <td style="text-align: right" class="info">@statsGlobal.get(Registry.TSC_TOTAL)(2).value()</td>
+	                
+	                <td style="text-align: right" class="success">@statsGlobal.get(Registry.TSC_SUCCESSFUL)(0).value()</td>
+	                <td style="text-align: right" class="success">@statsGlobal.get(Registry.TSC_SUCCESSFUL)(1).value()</td>
+	                <td style="text-align: right" class="success">@statsGlobal.get(Registry.TSC_SUCCESSFUL)(2).value()</td>
+	                
+	                <td style="text-align: right" class="warning">@statsGlobal.get(Registry.TSC_FAILED_ENGINE)(0).value()</td>
+                    <td style="text-align: right" class="warning">@statsGlobal.get(Registry.TSC_FAILED_ENGINE)(1).value()</td>
+                    <td style="text-align: right" class="warning">@statsGlobal.get(Registry.TSC_FAILED_ENGINE)(2).value()</td>
+                    
+                    <td style="text-align: right" class="danger">@statsGlobal.get(Registry.TSC_FAILED_NAMESPACE)(0).value()</td>
+                    <td style="text-align: right" class="danger">@statsGlobal.get(Registry.TSC_FAILED_NAMESPACE)(1).value()</td>
+                    <td style="text-align: right" class="danger">@statsGlobal.get(Registry.TSC_FAILED_NAMESPACE)(2).value()</td>
+	            </tr>
+	            <tr>
+                   <td colspan="3" style="text-align: center; font-weight: bold" class="info">@countersGlobal.get(Registry.COUNTER_TOTAL)</td>
+                   <td colspan="3" style="text-align: center; font-weight: bold" class="success">@countersGlobal.get(Registry.COUNTER_SUCCESSFUL)</td>
+                   <td colspan="3" style="text-align: center; font-weight: bold" class="warning">@countersGlobal.get(Registry.COUNTER_FAILED_ENGINE)</td>
+                   <td colspan="3" style="text-align: center; font-weight: bold" class="danger">@countersGlobal.get(Registry.COUNTER_FAILED_NAMESPACE)</td>
+                </tr>
 	        </tbody>
 	    </table>
     </div>

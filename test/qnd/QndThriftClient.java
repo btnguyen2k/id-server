@@ -14,11 +14,9 @@ public class QndThriftClient {
     public static void main(String[] args) throws TException {
         TTransport transport = new TFramedTransport(new TSocket("localhost", 9090));
         transport.open();
-
-        // TProtocol protocol = new TBinaryProtocol(transport);
         TProtocol protocol = new TCompactProtocol(transport);
         TIdService.Client client = new TIdService.Client(protocol);
-        System.out.println(client.nextId("default", "redis"));
-        System.out.println(client.currentId("default", "redis"));
+        System.out.println(client.nextId("default", "zookeeper"));
+        System.out.println(client.currentId("default", "zookeeper"));
     }
 }

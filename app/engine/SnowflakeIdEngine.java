@@ -106,4 +106,13 @@ public class SnowflakeIdEngine implements IIdEngine {
         return -2;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean setValue(String namespace, long value) throws Exception {
+        // operation is not supported
+        return false;
+    }
+
 }

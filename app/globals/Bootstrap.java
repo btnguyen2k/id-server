@@ -8,6 +8,7 @@ import org.apache.thrift.server.TServer;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
+import play.Play;
 import thrift.TIdServiceImpl;
 import util.ThriftServerUtils;
 
@@ -30,10 +31,14 @@ public class Bootstrap extends GlobalSettings {
 
     private void startThriftServer() {
         int thriftPort = 0;
-        try {
-            thriftPort = Integer.parseInt(System.getProperty("thrift.port"));
-        } catch (Exception e) {
-            thriftPort = 0;
+        if (Play.isDev()) {
+            thriftPort = 9090;
+        } else {
+            try {
+                thriftPort = Integer.parseInt(System.getProperty("thrift.port"));
+            } catch (Exception e) {
+                thriftPort = 0;
+            }
         }
 
         if (thriftPort > 0) {
@@ -41,11 +46,9 @@ public class Bootstrap extends GlobalSettings {
             try {
                 TProcessorFactory processorFactory = new TProcessorFactory(
                         new TIdService.Processor<TIdService.Iface>(TIdServiceImpl.instance));
-                // TProtocolFactory protocolFactory = new
-                // TBinaryProtocol.Factory();
                 TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
                 thriftServer = ThriftServerUtils.createThreadedSelectorServer(processorFactory,
-                        protocolFactory, thriftPort, 3000, 0, 0, 2, 8);
+                        protocolFactory, thriftPort, 3000, 0, 0, 4, 128);
             } catch (Exception e) {
                 thriftServer = null;
             }
