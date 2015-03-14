@@ -42,13 +42,51 @@ public class Bootstrap extends GlobalSettings {
         }
 
         if (thriftPort > 0) {
+            int clientTimeoutMillisecs = 0;
+            try {
+                clientTimeoutMillisecs = Integer.parseInt(System
+                        .getProperty("thrift.clientTimeout"));
+            } catch (Exception e) {
+                clientTimeoutMillisecs = 0;
+            }
+
+            int maxFrameSize = 0;
+            try {
+                maxFrameSize = Integer.parseInt(System.getProperty("thrift.maxFrameSize"));
+            } catch (Exception e) {
+                maxFrameSize = 0;
+            }
+
+            long maxReadBufferSize = 0;
+            try {
+                maxReadBufferSize = Integer
+                        .parseInt(System.getProperty("thrift.maxReadBufferSize"));
+            } catch (Exception e) {
+                maxReadBufferSize = 0;
+            }
+
+            int numSelectorThreads = 0;
+            try {
+                numSelectorThreads = Integer.parseInt(System.getProperty("thrift.selectorThreads"));
+            } catch (Exception e) {
+                numSelectorThreads = 0;
+            }
+
+            int numWorkerThreads = 0;
+            try {
+                numWorkerThreads = Integer.parseInt(System.getProperty("thrift.workerThreads"));
+            } catch (Exception e) {
+                numWorkerThreads = 0;
+            }
+
             TServer thriftServer = null;
             try {
                 TProcessorFactory processorFactory = new TProcessorFactory(
                         new TIdService.Processor<TIdService.Iface>(TIdServiceImpl.instance));
                 TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
                 thriftServer = ThriftServerUtils.createThreadedSelectorServer(processorFactory,
-                        protocolFactory, thriftPort, 3000, 0, 0, 4, 128);
+                        protocolFactory, thriftPort, clientTimeoutMillisecs, maxFrameSize,
+                        maxReadBufferSize, numSelectorThreads, numWorkerThreads);
             } catch (Exception e) {
                 thriftServer = null;
             }

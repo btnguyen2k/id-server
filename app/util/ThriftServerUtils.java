@@ -25,8 +25,14 @@ import org.apache.thrift.transport.TTransportFactory;
  */
 public class ThriftServerUtils {
 
+    public final static int DEFAULT_CLIENT_TIMEOUT_MS = 10000;
     public final static int DEFAULT_MAX_FRAMESIZE = 1024 * 1024;
     public final static int DEFAULT_TOTAL_MAX_READ_BUFFERSIZE = 16 * 1024 * 1024;
+    public final static int DEFAULT_NUM_SELECTOR_THREADS = 4;
+    public final static int DEFAULT_NUM_WORKER_THREADS;
+    static {
+        DEFAULT_NUM_WORKER_THREADS = Math.max(2, Runtime.getRuntime().availableProcessors());
+    }
 
     /**
      * Creates a {@link TThreadPoolServer} server.
@@ -60,12 +66,16 @@ public class ThriftServerUtils {
     public static TThreadPoolServer createThreadPoolServer(TProcessorFactory processorFactory,
             TProtocolFactory protocolFactory, int port, int clientTimeoutMillisecs,
             int maxFrameSize, int maxWorkerThreads) throws TTransportException {
+        if (clientTimeoutMillisecs <= 0) {
+            clientTimeoutMillisecs = DEFAULT_CLIENT_TIMEOUT_MS;
+        }
         if (maxFrameSize <= 0) {
             maxFrameSize = DEFAULT_MAX_FRAMESIZE;
         }
         if (maxWorkerThreads <= 0) {
-            maxWorkerThreads = Math.max(2, Runtime.getRuntime().availableProcessors());
+            maxWorkerThreads = DEFAULT_NUM_WORKER_THREADS;
         }
+
         TServerTransport transport = new TServerSocket(port, clientTimeoutMillisecs);
         TTransportFactory transportFactory = new TFramedTransport.Factory(maxFrameSize);
         TThreadPoolServer.Args args = new TThreadPoolServer.Args(transport)
@@ -104,12 +114,16 @@ public class ThriftServerUtils {
     public static TNonblockingServer createNonBlockingServer(TProcessorFactory processorFactory,
             TProtocolFactory protocolFactory, int port, int clientTimeoutMillisecs,
             int maxFrameSize, long maxReadBufferSize) throws TTransportException {
+        if (clientTimeoutMillisecs <= 0) {
+            clientTimeoutMillisecs = DEFAULT_CLIENT_TIMEOUT_MS;
+        }
         if (maxFrameSize <= 0) {
             maxFrameSize = DEFAULT_MAX_FRAMESIZE;
         }
         if (maxReadBufferSize <= 0) {
             maxReadBufferSize = DEFAULT_TOTAL_MAX_READ_BUFFERSIZE;
         }
+
         TNonblockingServerTransport transport = new TNonblockingServerSocket(port,
                 clientTimeoutMillisecs);
         TTransportFactory transportFactory = new TFramedTransport.Factory(maxFrameSize);
@@ -155,6 +169,9 @@ public class ThriftServerUtils {
             TProtocolFactory protocolFactory, int port, int clientTimeoutMillisecs,
             int maxFrameSize, long maxReadBufferSize, int numWorkerThreads)
             throws TTransportException {
+        if (clientTimeoutMillisecs <= 0) {
+            clientTimeoutMillisecs = DEFAULT_CLIENT_TIMEOUT_MS;
+        }
         if (maxFrameSize <= 0) {
             maxFrameSize = DEFAULT_MAX_FRAMESIZE;
         }
@@ -162,8 +179,9 @@ public class ThriftServerUtils {
             maxReadBufferSize = DEFAULT_TOTAL_MAX_READ_BUFFERSIZE;
         }
         if (numWorkerThreads <= 0) {
-            numWorkerThreads = Math.max(2, Runtime.getRuntime().availableProcessors());
+            numWorkerThreads = DEFAULT_NUM_WORKER_THREADS;
         }
+
         TNonblockingServerTransport transport = new TNonblockingServerSocket(port,
                 clientTimeoutMillisecs);
         TTransportFactory transportFactory = new TFramedTransport.Factory(maxFrameSize);
@@ -215,6 +233,9 @@ public class ThriftServerUtils {
             TProcessorFactory processorFactory, TProtocolFactory protocolFactory, int port,
             int clientTimeoutMillisecs, int maxFrameSize, long maxReadBufferSize,
             int numSelectorThreads, int numWorkerThreads) throws TTransportException {
+        if (clientTimeoutMillisecs <= 0) {
+            clientTimeoutMillisecs = DEFAULT_CLIENT_TIMEOUT_MS;
+        }
         if (maxFrameSize <= 0) {
             maxFrameSize = DEFAULT_MAX_FRAMESIZE;
         }
@@ -222,11 +243,12 @@ public class ThriftServerUtils {
             maxReadBufferSize = DEFAULT_TOTAL_MAX_READ_BUFFERSIZE;
         }
         if (numSelectorThreads <= 0) {
-            numSelectorThreads = 2;
+            numSelectorThreads = DEFAULT_NUM_SELECTOR_THREADS;
         }
         if (numWorkerThreads <= 0) {
-            numWorkerThreads = Math.max(2, Runtime.getRuntime().availableProcessors());
+            numWorkerThreads = DEFAULT_NUM_WORKER_THREADS;
         }
+
         TNonblockingServerTransport transport = new TNonblockingServerSocket(port,
                 clientTimeoutMillisecs);
         TTransportFactory transportFactory = new TFramedTransport.Factory(maxFrameSize);
