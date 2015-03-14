@@ -19,7 +19,11 @@ public class TIdServiceImpl implements TIdService.Iface {
      */
     @Override
     public void ping() throws TException {
-        // EMPTY
+        Registry.incConcurrency();
+        try {
+        } finally {
+            Registry.decConcurrency();
+        }
     }
 
     /**
@@ -27,7 +31,12 @@ public class TIdServiceImpl implements TIdService.Iface {
      */
     @Override
     public boolean ping2() throws TException {
-        return true;
+        Registry.incConcurrency();
+        try {
+            return true;
+        } finally {
+            Registry.decConcurrency();
+        }
     }
 
     private static TIdResponse doResponse(int status, long id, String message) {
